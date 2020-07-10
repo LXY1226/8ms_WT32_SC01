@@ -21,7 +21,7 @@
 #define LCD_BACKLIGHT_CHANNEL LEDC_CHANNEL_0
 
 #define LCD_buf (LCD_H*LCD_W * 2)
-#define PARALLEL_BUFF_16 LCD_W * LCD_H / 16
+#define PARALLEL_BUFF_16 LCD_W * LCD_H / 16 // 320/16=20
 #define PARALLEL_BUFF_8 PARALLEL_BUFF_16 * 2
 
 uint16_t *frameBuf;
@@ -117,19 +117,6 @@ void LCD_draw(LCD_Point from, LCD_Point to, const uint16_t *bitmap, int len) {
     }));
 }
 
-void LCD_drawVert(LCD_Point from, LCD_Point to, const void *bitmap, int len) {
-    //printf("draw\n");
-    LCD_cmd(0x2c, 0, 0);
-    LCD_setWindow(from, to);
-    LCD_cmd(0x2c, 0, 0);
-    ESP_ERROR_CHECK(spi_device_polling_transmit(LCD_handle, &(spi_transaction_t) {
-            .length = len * 8,
-            .tx_buffer = bitmap,
-    }));
-    delay(20);
-    //lcd_data((const uint8_t *) bitmap, len);
-}
-
 void LCD_fill(uint16_t color) {
 //    ESP_LOGI(LOG_TAG, "Fresh");
     LCD_setWindow((LCD_Point) {0, 0}, (LCD_Point) {LCD_W, LCD_H});
@@ -205,31 +192,67 @@ void LCD_init() {
 //    delay(20);
     gpio_set_level(LCD_RST, 1);
     delay(100);
-
-    LCD_cmd(0x11, 0, 0); // Sleep out
-    delay(120);
-    LCD_cmd(0xf0, &(uint8_t[]) {0xc3}, 1);
-    LCD_cmd(0xf0, &(uint8_t[]) {0x96}, 1);
+//    LCD_cmd(0x11, 0, 0); // Sleep out
+//    delay(120);
+//    LCD_cmd(0xf0, &(uint8_t[]) {0xc3}, 1);
+//    LCD_cmd(0xf0, &(uint8_t[]) {0x96}, 1);
     LCD_cmd(0x36, &(uint8_t[]) {LCD_MAD_DEFAULT}, 1);
+    /* Interface Pixel Format, 16bits/pixel for RGB/MCU interface */
     LCD_cmd(0x3a, &(uint8_t[]) {0x55}, 1);
+    /* Porch Setting */
+//    LCD_cmd(0xb2, &(uint8_t[]) {0x0c, 0x0c, 0x00, 0x33, 0x33}, 5);
+    /* Gate Control, Vgh=13.65V, Vgl=-10.43V */
+//    LCD_cmd(0xb7, &(uint8_t[]) {0x45}, 1);
+    /* VCOM Setting, VCOM=1.175V */
+//    LCD_cmd(0xBB, &(uint8_t[]) {0x2B}, 1);
+    /* LCM Control, XOR: BGR, MX, MH */
+//    LCD_cmd(0xC0, &(uint8_t[]) {0x2C}, 1);
+    /* VDV and VRH Command Enable, enable=1 */
+//    LCD_cmd(0xBB, &(uint8_t[]) {0x2B}, 1);
+    /* LCM Control, XOR: BGR, MX, MH */
+//    LCD_cmd(0xC0, &(uint8_t[]) {0x2C}, 1);
+    /* VDV and VRH Command Enable, enable=1 */
+//    LCD_cmd(0xC2, &(uint8_t[]) {0x01, 0xff}, 2);
+    /* VRH Set, Vap=4.4+... */
+//    LCD_cmd(0xC3, &(uint8_t[]) {0x11}, 1);
+    /* VDV Set, VDV=0 */
+//    LCD_cmd(0xC4, &(uint8_t[]) {0x20}, 1);
+    /* Frame Rate Control, 60Hz, inversion=0 */
+//    LCD_cmd(0xB1, &(uint8_t[]) {0xA0, 0x00}, 2);
+    /* Power Control 1, AVDD=6.8V, AVCL=-4.8V, VDDS=2.3V */
+//    LCD_cmd(0xD0, &(uint8_t[]) {0xA4, 0xA1}, 2);
+    /* Positive Voltage Gamma Control */
+//    LCD_cmd(0xE0, &(uint8_t[]) {0xD0, 0x00, 0x05, 0x0E, 0x15, 0x0D, 0x37, 0x43, 0x47, 0x09, 0x15, 0x12, 0x16, 0x19}, 14);
+    /* Negative Voltage Gamma Control */
+//    LCD_cmd(0xE0, &(uint8_t[]) {0xD0, 0x00, 0x05, 0x0D, 0x0C, 0x06, 0x2D, 0x44, 0x40, 0x0E, 0x1C, 0x18, 0x16, 0x19}, 14);
+//    LCD_cmd(0xf0, &(uint8_t[]) {0x3C}, 1);
+//    LCD_cmd(0xf0, &(uint8_t[]) {0x69}, 1);
+//    delay(120);
+//    delay(120);
+    /* Display On */
+//    LCD_cmd(0xf0, &(uint8_t[]) {0xc3}, 1);
+//    LCD_cmd(0xf0, &(uint8_t[]) {0x96}, 1);
+//    LCD_cmd(0x3a, &(uint8_t[]) {0x55}, 1);
+    /* Column inversion: 1-dot*/
     LCD_cmd(0xb4, &(uint8_t[]) {0x01}, 1);
-    LCD_cmd(0xb6, &(uint8_t[]) {0x80, 0x02, 0x3b}, 3);
-    LCD_cmd(0xe8, &(uint8_t[]) {0x40, 0x8a, 0x00, 0x00, 0x29, 0x19, 0xa5, 0x33}, 8);
-    LCD_cmd(0xc1, &(uint8_t[]) {0x06}, 1);
-    LCD_cmd(0xc2, &(uint8_t[]) {0xa7}, 1);
-    LCD_cmd(0xc5, &(uint8_t[]) {0x18}, 1);
-    delay(120);
-    LCD_cmd(0xe0, &(uint8_t[]) {0xF0, 0x09, 0x0b, 0x06, 0x04, 0x15, 0x2F, 0x54, 0x42, 0x3C, 0x17, 0x14, 0x18, 0x1B},
-            14);
-    LCD_cmd(0xe1, &(uint8_t[]) {0xE0, 0x09, 0x0B, 0x06, 0x04, 0x03, 0x2B, 0x43, 0x42, 0x3B, 0x16, 0x14, 0x17, 0x1B},
-            14);
-    LCD_cmd(0xf0, &(uint8_t[]) {0x3C}, 1);
-    LCD_cmd(0xf0, &(uint8_t[]) {0x69}, 1);
-    delay(120);
-
-
+//    LCD_cmd(0xb6, &(uint8_t[]) {0x80, 0x02, 0x3b}, 3);
+//    LCD_cmd(0xe8, &(uint8_t[]) {0x40, 0x8a, 0x00, 0x00, 0x29, 0x19, 0xa5, 0x33}, 8);
+//    LCD_cmd(0xc1, &(uint8_t[]) {0x06}, 1);
+//    LCD_cmd(0xc2, &(uint8_t[]) {0xa7}, 1);
+//    LCD_cmd(0xc5, &(uint8_t[]) {0x18}, 1);
+//    delay(120);
+//    LCD_cmd(0xe0, &(uint8_t[]) {0xF0, 0x09, 0x0b, 0x06, 0x04, 0x15, 0x2F, 0x54, 0x42, 0x3C, 0x17, 0x14, 0x18, 0x1B},
+//            14);
+//    LCD_cmd(0xe1, &(uint8_t[]) {0xE0, 0x09, 0x0B, 0x06, 0x04, 0x03, 0x2B, 0x43, 0x42, 0x3B, 0x16, 0x14, 0x17, 0x1B},
+//            14);
+//    LCD_cmd(0xf0, &(uint8_t[]) {0x3C}, 1);
+//    LCD_cmd(0xf0, &(uint8_t[]) {0x69}, 1);
+//    delay(120);
+    /* Sleep Out */
+    LCD_cmd(0x11, 0,0);
     LCD_fill(LCD_K);
     LCD_cmd(0x29, 0, 0); //Display on
+    delay(70); // wait to fill
     ledc_timer_config_t ledc_timer = {
             .duty_resolution = LEDC_TIMER_13_BIT,
             .freq_hz = 5000,

@@ -12,19 +12,19 @@ void app_main(void){
     // gpio_set_level(23, 0);
     // gpio_set_level(23, 1);
     LCD_init();
-    GUI_print(LCD_WHITE, "Mirai\n");
-    GUI_print(LCD_C, "Mirai");
-    GUI_print(LCD_M, "Mirai");
-    GUI_print(LCD_Y, "Mirai");
-    GUI_print(LCD_C, "Mirai");
-    GUI_print(LCD_M, "Mirai");
-    GUI_print(LCD_Y, "Mirai");
-    GUI_print(LCD_C, "Mirai");
-    GUI_print(LCD_M, "Mirai");
-    GUI_print(LCD_Y, "Mirai");
-    GUI_print(LCD_C, "Mirai");
-    GUI_print(LCD_M, "Mirai");
-    GUI_print(LCD_Y, "Mirai");
+    GUI_print(LCD_WHITE, "ESP32\n");
+    GUI_print(LCD_C, "ESP32");
+    GUI_print(LCD_M, "ESP32");
+    GUI_print(LCD_Y, "ESP32");
+    GUI_print(LCD_R, "ESP32");
+    GUI_print(LCD_G, "ESP32");
+    GUI_print(LCD_B, "ESP32");
+//    GUI_print(LCD_C, "Mirai");
+//    GUI_print(LCD_M, "Mirai");
+//    GUI_print(LCD_Y, "Mirai");
+//    GUI_print(LCD_C, "Mirai");
+//    GUI_print(LCD_M, "Mirai");
+//    GUI_print(LCD_Y, "Mirai");
 //    printf("\nFin");
     // while(1)
     // {
